@@ -1,0 +1,70 @@
+.MODEL SMALL
+.STACK
+.DATA  
+
+SOURCE DB 1,2,3,4,5          ;CUT BY ROW
+       DB 6,7,8,9,0
+       DB 9,8,7,6,5
+       DB 4,3,2,1,0
+       DB 7,7,7,7,7
+       DB 3,5,7,9,0
+       DB 8,7,6,5,4
+       DB 9,9,9,3,2
+
+ERESULT DB 0
+ORESULT DB 0
+FRESULT DB 0
+.CODE
+
+.STARTUP  
+
+
+MOV AX , 0 
+MOV BX , 0 
+MOV CX , 20
+MOV DI , 0 
+MOV SI , 0
+MOV DX , 0
+
+LABLE:
+MOV AL , SOURCE[BX]
+
+
+MOV DL , AL 
+
+ADD ERESULT , DL
+
+INC BX 
+
+MOV AL , SOURCE[BX]
+
+ADD ORESULT , AL
+
+INC BX
+
+DEC CX 
+CMP CX , 0
+
+JE EXIT
+JNE LABLE
+
+
+EXIT: 
+
+MOV AL , ERESULT
+MOV BL , ORESULT
+
+SUB AL , BL     
+
+MOV FRESULT , AL
+
+
+
+
+
+
+.EXIT
+
+END
+
+
