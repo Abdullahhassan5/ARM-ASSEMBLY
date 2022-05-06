@@ -1,7 +1,10 @@
 Specification 3
-Given a 8 x 5 matrix of bytes SOURCE representing unsigned numbers, write a 8086 assembly program which computes on 16 bits (two's complement) the addition of all cells with indexes (i,j) where i+j is an even value, minus all the cells whose i+j is an odd value. Please consider that i ranges from 0 to 7 and j ranges from 0 to 4.
+Given a 8 x 5 matrix of bytes SOURCE representing unsigned numbers, write a 8086 assembly program which computes on 
+16 bits (two's complement) the addition of all cells with indexes (i,j) where i+j is an even value, minus all the 
+cells whose i+j is an odd value. Please consider that i ranges from 0 to 7 and j ranges from 0 to 4.
 Please add significant comments to the code and instructions.
-Friendly advice: before starting to write down the code, think at a possible (very) simple algorithm! The choice of the algorithm highly influences the complexity and length of the code.
+Friendly advice: before starting to write down the code, think at a possible (very) simple algorithm! 
+The choice of the algorithm highly influences the complexity and length of the code.
 
 Example
 Initial matrix SOURCE
