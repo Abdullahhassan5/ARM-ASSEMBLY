@@ -1,0 +1,77 @@
+.MODEL SMALL
+.STACK
+.DATA
+SOURCE DB 1 , 5 , 9 ,-2 , -6 , 0 ,3 , 7 , -3 , -4 , -8 , 1 ; CUT BY COLUMN
+
+DESTINATION DB 12 DUP(?)
+
+
+
+
+
+
+.CODE
+.STARTUP  
+
+MOV AX , 0 
+MOV BX , 0 
+MOV DI , 0 
+MOV CX , 12
+
+LOOP1:
+
+MOV AL , SOURCE[BX]
+
+NEG AL 
+
+MOV DESTINATION[DI] , AL 
+
+
+INC BX
+
+ADD DI , 4
+
+CMP BX , 3
+JE LABLE1
+
+
+CMP BX ,6
+JE LABEL2
+
+
+CMP BX , 9
+JE LABLE3
+
+
+
+
+
+DEC CX 
+CMP CX ,0
+JE EXIT
+JNE LOOP1
+
+
+LABLE1:
+
+
+MOV DI , 0 
+ADD DI , 1
+JMP LOOP1
+
+
+LABEL2:
+
+MOV DI , 0 
+ADD DI , 2
+JMP LOOP1
+
+LABLE3:
+MOV DI , 0 
+ADD DI , 3
+JMP LOOP1
+
+
+EXIT:
+.EXIT
+END
