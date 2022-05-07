@@ -1,0 +1,214 @@
+Muhammad Talha Farooq, [06.09.21 00:15]
+Questions 
+ 
+## Hazards 
+### List the different types of Hazards, detailing in particular the different categories of Data Hazards (27-02-2019) 
+ Hazards are situations that prevent an instruction from executing during its designated clock cycle. 
+ There are three classes of hazards: 
+  - structural hazards: coming from resource conflicts; 
+  - data hazards (RAW, WAW, WAR): an instruction depends on the result of a previous instruction; 
+  - control hazards: depend on branches and other instructions that change the PC. 
+### Describe for every type and category an example where the Hazard happens (27-02-2019) 
+ - Structural hazard: a given unit is not able to complete its task in one clock cycle or the pipeline refers to a single-port memory, and there are cycles in which different instructions would like to access to the memory together. 
+ - Data hazards: there are three categories of data hazards: 
+  - RAW (Read After Write): an instruction tries to read a source before a previous instruction writes it; 
+  - WAW (Write After Write): an instruction tries to write a source before a previous instruction writes it; 
+  - WAR (Write After Read): an instruction tries to write a source before a previous instruction read it. 
+ - Control hazards: a branch may change the PC after the following instruction has been fetched already. 
+### Identify the corresponding data dependency (for Data Hazards, only) (27-02-2019) 
+ RAW (Read After Write) is a true dependency. 
+ WAW (Write After Write) is an anti-dependency. 
+ WAR (Write After Read) is an output dependency. 
+ 
+## ILP - Instruction Level Parallelism 
+### Explain what ILP is and why it is important in pipelined architectures (28-01-2020) 
+ ILP stands for Instruction Level Parallelism. It is the amount of parallelism (i.e., independence) between instructions. 
+ The highest the amount of ILP that can be found and exploited, the better the performance of the pipeline, or rather, a better CPI (Clock Cycles per Instruction) in pipelined architectures, since it allows different instructions to be executed in parallel. 
+ Hence, it is a characteristic of the code. 
+
+### Define what static and dynamic instruction re-scheduling are, listing the advantages/disadvantages they involve (28-01-2020) 
+ Re-scheduling is the activity of changing the order of instructions executed by the processor to exploit ILP. 
+ There are two approaches in which this can be done (that can be partly combined): 
+ 1. statically if it is done by the compiler. In this way the compiler becomes more complex, and the code is optimized for a given processor architecture. Since not all dependencies are known at compile time (e.g., those involving memory locations are not), the achievable performance is lower than for dynamic re-scheduling; 
+ 2. dynamically if it is implemented at run time by the processor, whose hardware clearly becomes more complex. However, the code is still portable and the achievable performance is higher. 
+### Summarize what Loop Unrolling is and list the advantages/disadvantages it involves (28-01-2020) 
+ Loop unrolling is a static technique for reorganizing the code when it includes loops. It involves repeating the body of a loop several time (if iterations are independent one from each other), thus reducing the number of iterations. 
+ In this way the performance may increase because: 
+ - the number of branch instructions reduces; 
+ - the size of the basic block corresponding to the iteration body increases, increasing the ILP. 
+ On the other size, this requires smarter compilers and may significantly increase the code size. 
+### Explain why Loop Unrolling is not required in superscalar processors implementing dynamic scheduling with speculation (28-01-2020) 
+ Superscalar processors implementing dynamic scheduling with speculation can execute instructions belonging to different iterations in any order (taking into account dependencies), exploiting branch prediction and speculation. 
+### Provide an example of loop unrolling, writing a piece of code before and after its application (28-01-2020)
+
+Muhammad Talha Farooq, [06.09.21 00:15]
+Original: 
+  
+  LD R6, R0, 10 
+ LOOP:  LD R3, 0(R1) 
+  LD R4, 0(R2) 
+  DADDUI R5, R3, R4 
+  DADDUI R1, R1, 8 
+  DADDUI R2, R2, 8 
+  DADDUI R6, R6,-1 
+  BNEZ R6, LOOP 
+  
+ Unrolled: 
+  
+  LD R6, R0, 5 
+ LOOP:  LD R3, 0(R1) 
+  LD R4, 0(R2) 
+  DADDUI R5, R3, R4 
+  DADDUI R1, R1, 8 
+  DADDUI R2, R2, 8 
+  LD R3, 0(R1) 
+  LD R4, 0(R2) 
+  DADDUI R5, R3, R4 
+  DADDUI R1, R1, 8 
+  DADDUI R2, R2, 8 
+  DADDUI R6, R6,-1 
+  BNEZ R6, LOOP 
+  
+ 
+## Branch prediction 
+### Explain the reasons why a Branch Prediction Unit is important in pipelined architectures (28-01-2020) 
+ Branch prediction is important to avoid the effects of control dependencies. 
+ Without branch prediction, after a branch there is the risk that a wrong instruction is fetched, hence causing the need for flushing it, and thus reducing the performance. 
+### Summarize the characteristics of Static and Dynamic Branch Prediction mechanisms, highlighting their main advantages and disadvantages (28-01-2020) 
+ Static Branch Prediction mechanisms are implemented by the compiler. They are based on analyzing the code and then making hypothesis on whether any branch is more likely to be taken or not. Examples of this approach include: 
+ - branch always taken; 
+ - branch always not taken; 
+ - prediction based on branch direction; 
+ - profile-based prediction (statistics). 
+ Dynamic Branch Prediction mechanisms are based on hardware, and use the branch instruction address to activate the different prediction mechanisms. Dynamic branch prediction can be based on different techniques: 
+ - Branch History Table (BHT) 
+ - Two-level prediction schemes (correlating predictors) 
+ - Branch-Target Buffer (BTB) 
+ Dynamic Branch Prediction techniques are implemented by the processor at run-time resorting to Branch Prediction Units (such as BHT and BTB). 
+ Static Branch Prediction techniques do not require making the processor more complex, but achieve lower performance. 
+ 
+## BHT - Branch History Table 
+### Describe the general architecture and behavior of a BHT (28-01-2020) 
+ A BHT is based on a memory composed of n words, each composed of m bits (usually 1 or 2 bits). Each word stores one prediction. Each time a branch instruction is decoded, the least log n significant bits of its address (apart from those blocked by the instruction alignment) are used to select an entry in the BHT. This mechanism may cause some collisions in accessing the BHT (different branch instructions refer to the same BHT line). The prediction is usually based on the result of the branch during previous executions. After the branch is executed, the entry it refers to is possibly updated. 
+### Detail the architecture and behavior of a 1-bit BHT (28-01-2020) 
+ In the case of a 1-bit BHT, m=1. This means that the prediction is simply based on the result of the branch the last time it is executed. 
+### Detail the architecture and behavior of a BHT using a 2-bit saturating counter (28-01-2020) 
+ In the case of a 2-bit saturating counter BHT, each entry of the BHT corresponds to a 2-bit saturating counter. This counter is incremented each time the branch is taken, decremented elsewhere. The counter is not updated in case its value is 0 and the branch is not taken, or if it is 3 and the branch is taken. When its value is 01 or 1, the branch is predict not taken, if it is 2 or 3, it is predicted taken. 
+### Detail the architecture and behavior of a BHT using a (2,2) correlating predictor (28-01-2020) 
+ In this case each BHT entry corresponds to 4 2-bit counters. During the program execution, a 2-bit shift register is continuously updated by shifting in a 1 each time a taken branch is executed, a 0 each time a not taken branch is executed. When a branch is decoded, an entry in the BHT is selected, and the field (out of the four) is considered, given by the shift register value. Then, this field is used as in the previous point. 
+ 
+## BTB - Branch-Target Buffer 
+### Describe the architecture of a BTB (28-04-2020) 
+ The BTB is a table composed of n entries, each composed of 2 m-bit fields: Address and Target.
+
+Muhammad Talha Farooq, [06.09.21 00:15]
+An additional 1 bit field may be present to take into account whether the branch has been taken or untaken. 
+### Describe in details the behavior of a BTB: when it is accessed, which input and output information are involved with each access (28-04-2020) 
+ The BTB is accessed each time an instruction is fetched. 
+ Using the least significant log n bits of the instruction address (excluding the word alignment bits) an entry is selected. 
+ The Address field of the entry is compared with the address of the fetched instruction: if they match, the Target field is uploaded in the PC. 
+ When the instruction is completed, the BTB is possibly updated. 
+### Assuming that the processor uses 32 bit addresses, each instruction is 4 byte wide, and the BTB is composed of 8 entries, clarify the content and size of the fields composing each BTB entry (28-04-2020) 
+ The BTB in this case is composed of 8 entries, each storing 32 bits (Address) + 32 bits (Target). 
+ Since instructions are aligned to words (4 bytes), the 2 least significant bits of each field can be omitted (being 0). 
+ 
+## Tomasulo architecture 
+### Explain what reservation stations are and where they are placed in the Tomasulo architecture, listing the modules they are connected to (18-06-2020) 
+ Reservation stations are hardware structures connected to execution units. They store instructions to be executed by them and waiting for operands. They are connected to the execution unit they relate to, to the Register File (where they fetch operands from), and to the Common Data Bus (CDB). 
+### Describe the hardware structure of a reservation station (18-06-2020) 
+ Each reservation station is made up of 7 different fields in addition to the identifier: 
+ - Op: stores the operation to be performed (e.g. SUB/ADD/MUL) 
+ - V_j: stores the value of the first source operand (if available) 
+ - V_k: stores the value of the second source operand (if available) 
+ - Q_j: stores the identifier of the reservation station which will produce the first source operand (if not available) 
+ - Q_k: stores the identifier of the reservation station which will produce the second source operand (if not available) 
+ - A: used in the load/store buffer only, it stores the immediate field first, and the effective address, then 
+ - Busy: stores the status of the reservation station (and corresponding functional unit) 
+
+### Summarize when data/information are written/updated in a reservation station (18-06-2020) 
+ A reservation station is first written by the issue unit, which allocates an instruction to it. If no reservation stations for that execution unit are available, a structural hazard occurs. If an operand is not yet available after the issue, the reservation station monitors the CDB until its value is produced. As soon as all operands are available, the instruction is sent to the execution unit, which executes it. 
+
+### Explain the advantages stemming from the introduction of the reservation stations in the Tomasulo architecture (18-06-2020) 
+ The reservation stations allow for an efficient out-of-order instruction execution, matching the data dependencies. WAW and WAR hazards, and the resulting stalls, are eliminated. 
+ 
+## ROB - ReOrder Buffer 
+### Explain the role of the ROB (when an entry is allocated in it, when it is written, when it is read, when it is de-allocated) (03-02-2021) 
+ It is the data structure containing the instruction results while the instruction didn't commit yet. 
+ The ROB is crucial to allow in-order instruction commitment while execution is performed out-of-order. An entry in the ROB is allocated to an instruction when this is successfully issued. Its content is written via the Common Data Bus (CDB) when the execution finishes its execution. It is read when other instructions use the result produced by the instruction while this is not yet committed. The ROB is a FIFO (i.e., a circular buffer). When an instruction becomes the oldest in the ROB, it is committed (i.e., its result is written in the destination) and the entry is de-allocated.
+
+Muhammad Talha Farooq, [06.09.21 00:15]
+If the instruction to be committed is a mispredicted branch, the whole buffer is flushed. 
+### Describe the ROB architecture, detailing the fields composing each entry (03-02-2021) 
+ The ROB is a buffer, whose elements are composed of the following fields: 
+ - Instruction type: branch, store, or register operations. 
+ - Destination: register number, or memory address. 
+ - Value: contains the value when the instruction has completed but still did not commit. 
+ - Ready: indicates whether the instruction completed its execution. 
+### Summarizing the advantages stemming from the adoption of the ROB (03-02-2021) 
+ The ROB allows the processor to implement dynamic scheduling with speculation. It also allows precise exception management. 
+ 
+## Instruction Execution Steps 
+### Describe the Instruction Execution Steps in Tomasulo architecture 
+ - Issue: get an instruction from the instruction queue (implementing a FIFO strategy). 
+  - Reservation stations available: send the instruction to it, and store operands (V_i) and/or identifiers (Q_i). 
+  - No reservation stations available: structural hazard (stall). 
+ - Execute:  
+  - Standard operations: as soon as all the operands for an instruction are available in the reservation unit, the instruction is executed. 
+  - Load/Store: as soon as the base register is available, the effective address is computed and written in the load/store buffer, wait for the operand to be written in memory (only for stores) and it is executes as soon as memory is available. 
+  - Branches: no instruction is allowed to initiate execution until all branches that precede the instruction in program order have completed (Speculation may allow to improve this mechanism). 
+ - Write result: when the result of an instruction is available, it is immediately written on the CDB, and from there in the registers and functional units waiting for it. 
+
+
+### Describe the Instruction Execution Steps in Tomasulo architecture with ROB 
+ - Issue: get an instruction from the instruction queue only if there is a reservation stations available and an empty slot in the reorder buffer, otherwise stall. 
+ - Execute: the instruction is executed as soon as all the required operands are available (the length of this step varies depending on the instruction type). 
+ - Write result: as soon as it is available, the result is put on the CDB (together with the tag identifying the instruction) and sent to the ReOrder Buffer. 
+ - Commit: the reorder buffer is ordered according to instructions original order. As soon as one instruction reached the head of the buffer: if it is a mispredicted branch, the buffer is flushed, and the execution is restarted with the correct successor of the instruction, otherwise, the result is written in the register or in memory (in case of a store), in both cases, the reorder buffer entry is marked as free. 
+ 
+## Superscalar processors 
+### Describe a Superscalar processor 
+ Multiple instructions are processe d at every clock cycle but this significantly increased the complexity of processors. 
+ In the static scheduling (MIPS version) two instructions (64 bits) can be issued per clock cycle if one is a load/store/branch/integer ALU operation and the other is any FP operation. It is mainly adopted by processors for the embedded market. 
+ In the dynamic scheduling a scheme similar to Tomasulo one is adopted (instructions are never issued to the reservation stations out-of-order). In some clock cycles, more than one instruction may be ready to write on the CDB, that can only service one instruction at a time. For this reason, duplicating the CDB can provide higher performance, at the cost of some area overhead. 
+ 
+## Very Long Instruction Word (VLIW) processors 
+### Describe a VLIW processor 
+ This kind of processors have long instructions encoding several operations, which are issued in parallel. 
+ They need a more complex software because it is up to the compiler to decide which instructions to pack together, exploiting parallelism, unrolling loops, scheduling code across basic blocks, etc.
+
+Muhammad Talha Farooq, [06.09.21 00:15]
+But they have a simpler hardware because it does not perform any check on possible dependencies among instructions (this task is completely left to the compiler). This significantly simplifies the processor. 
+ For example we could have 5 functional units: to control each functional unit we need 16 to 24 bits, therefore, the length of an instruction is from 80 to 120 bits. 
+ Due to the high parallelism the access to memory is often a bottleneck, since the required bandwidth is higher. 
+ VLIW architecture is suitable for Digital Signal Processing applications like compression/decompression of image and speech data. 
+ 
+## Multithreading 
+### Multithreading types 
+ - Fine-grained multithreading: the switch from one thread to another happens at every clock cycle. 
+ - Coarse-grained multithreading: the switch happens only when an expensive stall arises. 
+ - Simultaneous multithreading (SMT): it mixes fine-grained multithreading and superscalar ideas (multiple instructions from independent threads can be issued using dynamic scheduling capabilities). 
+ 
+## Exceptions 
+### List the events that can trigger an exception, grouping them in categories (27-06-2019) 
+ - Synchronous vs. asynchronous. 
+ - User requested vs. coerced. 
+ - User maskable vs. user nonmaskable. 
+ - Within vs. between instructions. 
+ - Resume vs. terminate. 
+### Define what we mean by precise exception (27-06-2019) 
+ A processor has precise exceptions if the pipeline can be stopped so that the instructions just before the instruction that triggered the exception are completed and the instructions following the instruction that triggered the exception can be restarted from scratch (restarting after an exception may be really hard if exceptions are not handled precisely). 
+### Describe how we can guarantee precise exception management in pipelined processors (27-06-2019) 
+ Some processors implement precise exceptions in debug mode, only. This mode is about 10 times slower than usual normal mode. 
+### Describe how we can guarantee precise exception management in superscalar processors with dynamic scheduling and speculation (27-06-2019) 
+ If out-of-order execution (and completion) is allowed, precise exception handling is impossible, but a ROB allows precise exception management in superscalar processors with dynamic scheduling and speculation. 
+ 
+## GPGPUs - General Purpose GPUs 
+### Define the characteristics of the GPGPUs by NVIDIA in terms of performed functions, highlighting the differences with respect to CPUs (02-09-2019) 
+ The GPGPUs (General Purpose GPUs) by NVIDIA uses a Compute Unified Device Architecture (CUDA), or rather, an Hardware/Software architecture to execute programs with different languages. 
+ In general a GPU is an hardware unit specialized for compute intensive, highly data parallel computation. It is good for high arithmetic intensity programs with a high ratio between arithmetic operations and memory operations. 
+### List the main characteristics of their architecture (02-09-2019) 
+ - Large data arrays, streaming throughput 
+ - Fine-grain SIMD parallelism 
+ - Fast floating point (FP) operations 
+### Describe the programming model of GPGPUs (02-09-2019) 
+ It is a general purpose programming model: the user starts several batches of threads on a GPU and it is in this case a dedicated super-threaded, massively data parallel co-processor.
