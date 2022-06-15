@@ -1,0 +1,63 @@
+                                         .MODEL SMALL
+.STACK
+ROW EQU 4
+COL EQU 4
+
+SIZE EQU 4*4
+
+
+
+.DATA
+
+SOURCE Dw 10 , 20, 100 , 10000, 0 , 7000 , 1,2,9000, 12345, 999 , 30000 , 200 , 210 , 7 , 65000           ;CUT BY ROW
+
+CROSS DW ?
+
+MAPP DW SIZE DUP(?) 
+
+
+.CODE 
+.STARTUP
+XOR AX, AX 
+XOR BX , BX
+XOR SI , SI
+XOR DI , DI 
+MOV CX , 0 
+
+START:
+
+MOV AX , SOURCE[SI] 
+ADD SI , 2  
+CMP AH , 0
+JE ONELABLE
+
+
+
+MOV MAPP[DI] , 0
+ADD DI , 2 
+
+
+
+
+
+INC CX 
+CMP CX , SIZE
+JNE START
+JMP EXIT
+
+ONELABLE:
+
+MOV MAPP[DI] , 1
+ADD DI , 2 
+
+ADD CROSS , AX 
+INC CX
+
+JNE START
+
+EXIT:
+
+
+
+.EXIT
+END
