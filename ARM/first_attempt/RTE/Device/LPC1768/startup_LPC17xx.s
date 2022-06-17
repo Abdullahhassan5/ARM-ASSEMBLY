@@ -115,8 +115,11 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 AREA    |.ARM.__at_0x02FC|, CODE, READONLY
 CRP_Key         DCD     0xFFFFFFFF
                 ENDIF
+					
 
-
+				AREA     PARAM , DATA , READONLY
+X				DCD  	2_0100110					
+K				DCD      6					
                 AREA    |.text|, CODE, READONLY
 
 
@@ -124,14 +127,39 @@ CRP_Key         DCD     0xFFFFFFFF
 
 Reset_Handler   PROC
                 EXPORT  Reset_Handler             [WEAK]
-                IMPORT  SystemInit
-                IMPORT  __main
-                LDR     R0, =SystemInit
-                BLX     R0
-                LDR     R0, =__main
-                BX      R0
+				LDR R0 , X
+				LDR R1 , K
+				BL restoringSquareRoot
+STOP			B STOP				
                 ENDP
-
+restoringSquareRoot PROC
+				PUSH{R4-R11,LR}
+				LSL R4, R0 , #1 ; R
+				MOV R5 , #0 ;     Q
+				MOV R6 , #1
+				LSL R7 , R6 , R1  ; 1
+				LSR R8 , R7 , #1  ; T= 1/2
+				MOV R9 , #1 ;  VALUE OF I 
+LOOP				
+				CMP R4 , R8 ; CMP r >= T:
+				BHS RHIGH
+				BLS RLOW
+RHIGH			SUB R4 , R4 , R8 ; R-T
+				LSR R10 , R7, R9 ; 2^(-i)
+				ADD R5 , R5 , R10 ;Q = Q + 2^(-i)
+				
+				
+RLOW			LSL R5 , R5 , #1 ; 2*Q
+				ADD R11 , R9 , #1 ; I+1
+				LSR R10 , R7 , R11 ;2^[-(i + 1)]
+				ADD R8 , R5 , R10 ; T = 2 * Q + 2^[-(i + 1)]
+				LSL R4, #1 ; R=2*R
+				ADD R9 , #1
+				CMP R9 , R1
+				BNE LOOP
+				MOV R0 , R5
+				POP{R4-R11,PC}
+				ENDP
 
 ; Dummy Exception Handlers (infinite loops which can be modified)
 
